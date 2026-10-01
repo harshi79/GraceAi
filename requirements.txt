@@ -1,0 +1,10 @@
+# Runtime dependencies for the Aero Grace desktop client.
+#
+# tkinter is part of the Python standard library but is packaged separately on
+# some distributions:
+#   Debian / Ubuntu : sudo apt-get install python3-tk
+#   Fedora / RHEL   : sudo dnf install python3-tkinter
+#   macOS (python.org installer): bundled
+#   Windows (python.org installer): bundled
+
+requests>=2.28,<3
