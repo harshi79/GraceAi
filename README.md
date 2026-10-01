@@ -64,6 +64,19 @@ Verbose (still fully redacted) logging on stderr:
 python3 run.py --debug
 ```
 
+**Check the environment before launching** (no window, no network):
+
+```bash
+python3 run.py --check          # 10 checks: python, requests, imports,
+                                # tkinter, HTTPS-only origin, SSE decoder,
+                                # markdown engine, mode registry, attachment
+                                # policy, credential scan
+python3 run.py --check -v       # ... plus the endpoint + mode tables
+```
+
+`--check` exits 0 when the API core is healthy and only prints a NOTE when
+`tkinter` is missing (the window cannot open, but nothing else is broken).
+
 Equivalent module form: `python3 -m grace`.
 
 The window opens maximised, is resizable down to 940 × 620, and supports F11
@@ -237,7 +250,7 @@ passed to Grace. Files are validated *before* any network call.
 python3 -m pytest tests/ -q
 ```
 
-**316 tests, all passing** (run 12 consecutive times with no flakes).
+**333 tests, all passing** (run 13 consecutive times with no flakes).
 
 | File | Covers |
 | --- | --- |
@@ -250,12 +263,13 @@ python3 -m pytest tests/ -q
 | `test_markdown.py` | every block type, every inline style, partial-document parsing, progressive growth over a 100+ character document, 400-section performance |
 | `test_errors.py` | friendly copy for every error, no tracebacks, credential scrubbing, HTTP/exception mapping, retryable flags |
 | `test_redaction.py` | bearer/JWT/e-mail/query/assignment redaction, nested mappings, header scrubbing, the logging filter end-to-end |
+| `test_selfcheck.py` | every `--check` probe, HTTPS-origin failure detection, the credential scan (including that it ignores the deliberate fake credentials in `tests/`), and that a missing `tkinter` is a NOTE rather than a hard failure |
 | `test_integration.py` | full lifecycle against the mock server, fresh-account flow, server-supplied conversation id, long streams, malformed frames, server-error recovery, every mode end-to-end, attachment round trip, mid-stream connection drop |
 | `test_ui_smoke.py` | GUI construction against a Tk stub: every widget, MarkdownView over 16 sample documents, composer keyboard/state machine, sidebar updates, chat bubbles, and the whole `GraceApp` shell including event handling, login errors, OTP switching, fullscreen, sign-out and a header/grid collision guard |
 
 ### Verified vs. not verified — read this before claiming anything
 
-**Verified by execution in this environment:** all 316 tests above, including
+**Verified by execution in this environment:** all 333 tests above, plus `python3 run.py --check` (10/10 pass here, with the expected `tkinter` NOTE), including
 the full HTTP/SSE/attachment/conversation stack against the mock server, plus
 `python3 -m compileall` and `pyflakes` (clean) over the whole tree.
 
@@ -343,4 +357,5 @@ These are things the brief asked about that the real backend does not expose
 | `Escape` | Leave fullscreen |
 | `Ctrl+L` | Focus the composer |
 | `Ctrl+D` | Toggle debug logging (still redacted) |
+| `python3 run.py --check` | Environment self-check, no window |
 | Mouse wheel | Scroll the message list (works over any child, including after a resize) |
